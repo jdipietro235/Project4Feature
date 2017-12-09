@@ -1,0 +1,218 @@
+<html>
+<head>
+<title>CS 143 Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Justin DiPietro <span style="color: #DE3737">(CSC-589-001)</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>CS 143 / Project 2 / Local Feature Matching</h2>
+
+<div style="float: right; padding: 20px">
+	<img src="../data/Office/results.png" width="70%"/>
+	<p style="font-size: 14px">Results from the office images</p>
+</div>
+
+<p> 	This project was intended to be a first step for stitching together two images of the same object. The input is two images and the output should be those same images with lines draw connecting a series of points that are shared between the images. Unfortunately, I barely got this working at all. As I will explain briefly here, the results are terrible.</p>
+
+<p> 	Using the Notre Dame dataset, which I had evaluation data for, my algorithm manages to get 2 correct points out of some ~250 features. Wow that is bad. Its difficult to tell for sure if the guessed data points are at least close, but it looks to me like they are. I was unable to overlay the points on the image itself, so there isn't a context to compare against.</p>
+
+<p> 	I also tested with two images I took myself of the office that I work in on campus. These two images have about the same amount of overlap between them as the two Notre Dame images that I was using. Unsuprisingly, the results for the images I took were about the same. At one point two identical images were accidentally used. Results were significantly better in that case.</p>
+
+
+<div style="clear:both">
+<h3>Process</h3>
+
+<ol>
+<li>Load images</li>
+<li>Find interest points in each image</li>
+<li>Break up the neighborhood of each interest point into quadrants to determine orientation and magnitude</li>
+<li>Use that data to turn the interest point into a feature</li>
+<li>Compare all of the features in image A to all of the features in image B</li>
+<li>The most similar features get paired up</li>
+<li>Plot the matches and evaluate their correctness</li>
+</ol>
+
+
+<h2>Core of feature matching code</h2>
+This is the most important part of the feature matching code. I went off the beaten trail a little here, but I'm not certain that is whats causing my poor results.<p>
+
+<pre><code>
+
+for aFeat in featuresA:
+		aCoord = aFeat[0]
+		aHisto = aFeat[1]
+		aFeat.append([1000000,100]) #sets default distance at an arbitrarily high value so the distance check feature match catches
+		#find the one that is most similar, then attach it to feature A
+		for bFeat in featuresB:
+			bCoord = bFeat[0]
+			bHisto = bFeat[1]
+
+			dist = 0
+			for pos, val in enumerate(aHisto): #?While?
+				dist += abs(val - bHisto[pos])
+
+				#subtract that value in each histo from eachother (absolute value)
+				#then add value to total distance thing
+			if dist < aFeat[2][0]:		#aFeat = [[x,y],[HISTOGRAM],[dist,bFeat]]
+				aFeat[2] = [dist, bFeat]
+
+</code></pre>
+
+<h3>Results in a table</h3>
+
+<table border=1>
+<tr>
+<td>
+<img src="../data/Office/Left.jpg" width="24%"/>
+<img src="../data/Office/Center.jpg"  width="24%"/>
+<img src="../data/Notre Dame/921919841_a30df938f2_o.jpg" width="24%"/>
+<img src="../data/Notre Dame/4191453057_c86028ce1f_o.jpg" width="24%"/>
+</td>
+</tr>
+
+<tr>
+<td>
+<img src="../data/Office/results.png" width="24%"/>
+<img src="../data/Office/results.png" width="24%"/>
+<img src="../data/Notre Dame/results.png" width="24%"/>
+<img src="../data/Notre Dame/results.png" width="24%"/>
+</td>
+</tr>
+
+</table>
+
+<div style="clear:both" >
+<p> 	Further experimentation is clearly needed to isolate the cause of this system's immense inaccuracies. Its most likely that the system I used to match features to each other was insufficient. Revamping both the matchFeatures function and the getFeatures function would solve the problems. I also had technical problems with the code provided to display my results in a plot, so I found an alternate method online (<a href="https://stackoverflow.com/questions/17543359/drawing-lines-between-two-plots-in-matplotlib">https://stackoverflow.com/questions/17543359/drawing-lines-between-two-plots-in-matplotlib</a>. This was probably not the best solution, but it was the best on short notice.</p>
+</div>
+</body>
+</html>

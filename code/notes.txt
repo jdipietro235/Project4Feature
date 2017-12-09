@@ -1,0 +1,9 @@
+
+
+
+
+
+orientation histograms
+around each of the interest points, need to construct a histogram
+histogram 
+Compute grandients of image
